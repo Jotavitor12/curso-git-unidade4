@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Define que o pipeline será executado quando houver push na branch main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Define que o pipeline será executado em uma máquina virtual Ubuntu
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Faz o checkout do código do repositório
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2  # Configura o Node.js para que você possa executar comandos npm
+        with:
+          node-version: '14'  # Define a versão do Node.js a ser usada
+
+      - name: Install dependencies
+        run: npm install  # Instala as dependências do projeto, se necessário
+
+      - name: Build the project
+        run: npm run build  # Compila ou constrói o projeto, se necessário. Se o seu projeto não usar npm, remova essa etapa.
+
+      - name: Check if index.html exists
+        run: |
+          if [ ! -f public/index.html ]; then  # Verifica se o arquivo index.html existe na pasta public
+            echo "index.html does not exist"
+            exit 1  # Se o arquivo não existir, o pipeline falha
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4  # Ação do GitHub para deploy no GitHub Pages
+        with:
+          branch: gh-pages  # A branch onde o conteúdo será publicado
+          folder: public  # A pasta onde os arquivos estáticos estão localizados
